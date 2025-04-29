@@ -458,7 +458,7 @@ document.querySelectorAll('.upgrade-btn').forEach(btn => {
     const user = tg.initDataUnsafe.user;
     
     try {
-      const response = await fetch('YOUR_APPWRITE_FUNCTION_URL', {
+      const response = await fetch('https://fra.cloud.appwrite.io/v1/functions/680e403b001ed82fa62a/executions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
