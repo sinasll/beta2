@@ -86,71 +86,66 @@
   </div>
 </div>
 </div>
-
 <script>
-  // When any “Activate” button is clicked…
   document.querySelectorAll('.upgrade-btn').forEach(btn => {
-    btn.addEventListener('click', async () => {
-      const stars     = btn.dataset.stars;       // e.g. "100"
-      const multiplier = btn.dataset.multiplier; // e.g. "1"
-      const initData  = Telegram.WebApp.initData; // auth blob
+  btn.addEventListener('click', async () => {
+    const stars = btn.dataset.stars;
+    const multiplier = btn.dataset.multiplier;
+    const initData = Telegram.WebApp.initData;
 
-      btn.disabled = true;
-      btn.textContent = 'Preparing…';
+    btn.disabled = true;
+    btn.textContent = 'Processing...';
 
-      try {
-        // 1️⃣ Create the invoice link on your server
-        const createRes = await fetch('/.netlify/functions/telegram-stars', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-Telegram-Init-Data': initData
-          },
-          body: JSON.stringify({
-            action:     'createInvoice',
-            stars:      stars,
-            multiplier: multiplier
-          })
-        });
-        const { invoiceLink } = await createRes.json();
+    try {
+      // 1. Create Invoice
+      const createRes = await fetch('https://fra.cloud.appwrite.io/v1/functions/680e403b001ed82fa62a/executions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'createInvoice',
+          stars: stars,
+          multiplier: multiplier,
+          initData: initData
+        })
+      });
+      
+      const { invoiceLink } = await createRes.json();
 
-        // 2️⃣ Open the in-app invoice drawer
-        Telegram.WebApp.openInvoice(invoiceLink, async (status) => {
-          if (status === 'paid') {
-            // 3️⃣ On success, tell your server to credit the user
-            const purchaseRes = await fetch('https://fra.cloud.appwrite.io/v1/functions/680e403b001ed82fa62a/executions', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'X-Telegram-Init-Data': initData
-              },
-              body: JSON.stringify({
-                action:     'purchase',
-                stars:      stars,
-                multiplier: multiplier
-              })
-            });
-            const data = await purchaseRes.json();
-            if (data.success) {
-              alert(`✅ Upgrade applied! Your new power: ${data.newPower}×`);
-            } else {
-              alert('⚠️ Could not apply upgrade: ' + data.message);
-            }
+      // 2. Open Payment Interface
+      Telegram.WebApp.openInvoice(invoiceLink, async (status) => {
+        if (status === 'paid') {
+          // 3. Confirm and Apply Upgrade
+          const purchaseRes = await fetch('https://fra.cloud.appwrite.io/v1/functions/680e403b001ed82fa62a/executions', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              action: 'purchase',
+              stars: stars,
+              multiplier: multiplier,
+              initData: initData
+            })
+          });
+          
+          const data = await purchaseRes.json();
+          if (data.success) {
+            document.getElementById('power').textContent = data.newPower;
+            Telegram.WebApp.showAlert(`✅ Upgrade applied! New power: x${data.newPower}`);
           } else {
-            alert('❌ Payment cancelled');
+            Telegram.WebApp.showAlert(`⚠️ Error: ${data.message}`);
           }
-        });
-      } catch (err) {
-        console.error(err);
-        alert('Error: ' + err.message);
-      } finally {
+        }
         btn.disabled = false;
         btn.textContent = 'Activate';
-      }
-    });
+      });
+    } catch (err) {
+      console.error(err);
+      Telegram.WebApp.showAlert('❌ Payment failed');
+      btn.disabled = false;
+      btn.textContent = 'Activate';
+    }
   });
+});
 </script>
-
 
 <!-- Codes -->
 <div class="card">
