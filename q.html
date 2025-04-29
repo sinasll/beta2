@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Mining Power Purchase</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        .power-tier {
+            border: 1px solid #2e2e2e;
+            padding: 15px;
+            margin: 10px;
+            border-radius: 10px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Boost Mining Power</h1>
+        
+        <div class="power-tier" data-stars="100" data-multiplier="2">
+            <h3>2× Power Boost</h3>
+            <p>100 Stars</p>
+            <button class="purchase-btn">Purchase</button>
+        </div>
+
+        <div class="power-tier" data-stars="500" data-multiplier="5">
+            <h3>5× Power Boost</h3>
+            <p>500 Stars</p>
+            <button class="purchase-btn">Purchase</button>
+        </div>
+    </div>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+        tg.MainButton.hide();
+
+        document.querySelectorAll('.purchase-btn').forEach(button => {
+            button.addEventListener('click', async (e) => {
+                const tier = e.target.closest('.power-tier');
+                const stars = tier.dataset.stars;
+                const multiplier = tier.dataset.multiplier;
+
+                try {
+                    const response = await fetch('/create-invoice', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-Telegram-Init-Data': tg.initData
+                        },
+                        body: JSON.stringify({
+                            stars: stars,
+                            multiplier: multiplier
+                        })
+                    });
+
+                    const invoice = await response.json();
+                    
+                    tg.showInvoice(invoice.invoice_link, (status) => {
+                        if (status === 'paid') {
+                            tg.showAlert(`Success! ${multiplier}× power activated!`);
+                            tg.sendData(JSON.stringify({
+                                action: 'update_power',
+                                multiplier: multiplier
+                            }));
+                        }
+                    });
+                } catch (error) {
+                    tg.showAlert("Payment failed. Please try again.");
+                }
+            });
+        });
+    </script>
+</body>
+</html>
