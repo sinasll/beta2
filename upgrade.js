@@ -7,63 +7,74 @@ const client = new Client()
 const functions = new Functions(client);
 const FUNCTION_ID = "680e403b001ed82fa62a";
 
-document.querySelectorAll('.upgrade-btn').forEach(btn => {
-  btn.addEventListener('click', async () => {
-    const btnData = btn.dataset;
-    const payload = {
-      title: btnData.title,
-      description: btnData.description || `${btnData.multiplier}x Boost`,
-      cost: Number(btnData.stars),
-      multiplier: Number(btnData.multiplier)
-    };
+document.addEventListener('DOMContentLoaded', () => {
+  // Initialize Telegram Web App
+  const webApp = window.Telegram.WebApp;
+  webApp.expand();
+  webApp.enableClosingConfirmation();
 
-    const originalState = {
-      disabled: btn.disabled,
-      text: btn.textContent
-    };
-    
-    btn.disabled = true;
-    btn.textContent = 'Processing...';
-
-    try {
-      const execution = await functions.createExecution(
-        FUNCTION_ID,
-        JSON.stringify(payload)
-      );
-
-      // Validate response structure
-      if (typeof execution.response !== 'string') {
-        throw new Error('Invalid server response format');
-      }
-
-      const result = JSON.parse(execution.response);
+  // Handle upgrade button clicks
+  document.querySelectorAll('.upgrade-btn').forEach(button => {
+    button.addEventListener('click', async (e) => {
+      const stars = e.target.dataset.stars;
+      const multiplier = e.target.dataset.multiplier;
       
-      if (!result?.success) {
-        throw new Error(result?.message || 'Payment processing failed');
-      }
+      try {
+        // Show loading state
+        e.target.innerHTML = '<div class="spinner"></div>';
+        e.target.disabled = true;
 
-      window.Telegram.WebApp.openInvoice(result.invoiceLink, status => {
-        if (status === 'paid') {
-          btn.textContent = '✓ Activated';
-          btn.classList.add('active');
-        } else {
-          btn.disabled = originalState.disabled;
-          btn.textContent = originalState.text;
+        // Call Appwrite function to generate invoice
+        const response = await callAppwriteFunction(stars, multiplier);
+        
+        if (response.invoiceLink) {
+          webApp.openInvoice(response.invoiceLink, status => {
+            if (status === 'paid') {
+              showSuccessMessage(multiplier);
+              updateMiningPower(multiplier);
+            } else {
+              showErrorMessage();
+            }
+          });
         }
-      });
-
-    } catch (error) {
-      console.error('Payment Error:', {
-        error,
-        rawResponse: execution?.response
-      });
-      
-      window.Telegram.WebApp.showAlert(
-        error.message || 'Payment processing failed'
-      );
-      
-      btn.disabled = originalState.disabled;
-      btn.textContent = originalState.text;
-    }
+      } catch (err) {
+        showErrorMessage();
+      } finally {
+        // Reset button state
+        e.target.innerHTML = 'Activate';
+        e.target.disabled = false;
+      }
+    });
   });
+
+  async function callAppwriteFunction(stars, multiplier) {
+    const response = await fetch('http://680e403dcabf3d90bb9c.fra.appwrite.run/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer <APPWRITE_API_KEY>'
+      },
+      body: JSON.stringify({
+        stars,
+        multiplier,
+        userId: window.Telegram.WebApp.initDataUnsafe.user?.id
+      })
+    });
+    
+    if (!response.ok) throw new Error('Failed to create invoice');
+    return response.json();
+  }
+
+  function showSuccessMessage(multiplier) {
+    window.Telegram.WebApp.showAlert(`✅ Success! ${multiplier}x mining power activated!`);
+  }
+
+  function showErrorMessage() {
+    window.Telegram.WebApp.showAlert('❌ Payment failed. Please try again.');
+  }
+
+  function updateMiningPower(multiplier) {
+    // Call your backend to update user's mining power
+    // This would be another Appwrite function or API call
+  }
 });

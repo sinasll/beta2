@@ -519,3 +519,44 @@ input[type="submit"] {
     color: #888;
     font-weight: 600;
   }
+
+  .upgrade-tier {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    margin: 1rem 0;
+    background: #1f2937;
+    border-radius: 8px;
+  }
+  
+  .upgrade-info h3 {
+    margin: 0;
+    color: white;
+    font-size: 1.1rem;
+  }
+  
+  .stars-cost {
+    margin: 0.5rem 0 0 0;
+    color: #fbbf24;
+    font-weight: bold;
+  }
+  
+  
+  .button:disabled {
+    background: #64748b;
+    cursor: not-allowed;
+  }
+  
+  .spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #fff;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+  
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
