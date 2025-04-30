@@ -476,6 +476,10 @@ input[type="submit"] {
   color: #00ff00;
 }
 
+.complete-task.claimed {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
 
   /* 1) Container + shimmer overlay */
   .upgrade-placeholder {

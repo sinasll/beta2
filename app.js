@@ -290,15 +290,25 @@ function updateCountdown() {
 
 // === OTHER FEATURES & EVENT LISTENERS ===
 function refreshTasksState() {
-  taskItems.forEach(li => {
-    const task = li.dataset.task;
-    const done = !!userData.tasksCompleted[task];
-    const prereq = task !== 'code10' || userData.totalCodeSubmissions >= 10;
-    const btn = li.querySelector('.complete-task');
-    btn.disabled = done || !prereq;
-    btn.textContent = done ? 'Done' : 'Claim';
-  });
-}
+    taskItems.forEach(li => {
+      const task = li.dataset.task;
+      const done = !!userData.tasksCompleted[task];
+      const prereq = task !== 'code10' || userData.totalCodeSubmissions >= 10;
+      const btn = li.querySelector('.complete-task');
+  
+      btn.disabled = done || !prereq;
+  
+      if (done) {
+        btn.textContent = 'Claimed';
+        btn.dataset.claimed = 'true';
+        btn.classList.add('claimed');
+      } else {
+        btn.textContent = 'Claim';
+        btn.dataset.claimed = 'false';
+        btn.classList.remove('claimed');
+      }
+    });
+  }
 
 async function handleTaskClick(task) {
   try {
