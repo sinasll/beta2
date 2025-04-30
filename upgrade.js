@@ -7,90 +7,63 @@ const client = new Client()
 const functions = new Functions(client);
 const FUNCTION_ID = "680e403b001ed82fa62a";
 
-document.addEventListener('DOMContentLoaded', () => {
-  // ─── 1) Telegram WebApp init ───────────────────────────────
-  const tg = window.Telegram.WebApp;
-  tg.expand();
+document.querySelectorAll('.upgrade-btn').forEach(btn => {
+  btn.addEventListener('click', async () => {
+    const btnData = btn.dataset;
+    const payload = {
+      title: btnData.title,
+      description: btnData.description || `${btnData.multiplier}x Boost`,
+      cost: Number(btnData.stars),
+      multiplier: Number(btnData.multiplier)
+    };
 
-  // We'll use the unsafe parsed initData here; your backend will HMAC-verify it
-  const initData = tg.initDataUnsafe;
-  if (!initData || !initData.user) {
-    alert('🚫 Please open this mini-app inside Telegram.');
-    document.body.innerHTML = '<h2>Please access via Telegram</h2>';
-    return;
-  }
+    const originalState = {
+      disabled: btn.disabled,
+      text: btn.textContent
+    };
+    
+    btn.disabled = true;
+    btn.textContent = 'Processing...';
 
-  // ─── 2) Appwrite runner URL ────────────────────────────────
-  // Replace with your real function runner domain (Console → Functions → Domains)
-  const RUNNER = 'https://680e403b001ed82fa62a.fra.appwrite.run';
+    try {
+      const execution = await functions.createExecution(
+        FUNCTION_ID,
+        JSON.stringify(payload)
+      );
 
-  // ─── 3) Helper to call your backend via fetch ───────────────
-  async function callBackend(action, stars, multiplier) {
-    const resp = await fetch(RUNNER, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action, stars, multiplier, initData })
-    });
-    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-    return resp.json();
-  }
-
-  // ─── 4) Wire up each “Activate” button ──────────────────────
-  document.querySelectorAll('.upgrade-btn').forEach(btn => {
-    btn.addEventListener('click', async () => {
-      const stars      = parseInt(btn.dataset.stars, 10);
-      const multiplier = parseFloat(btn.dataset.multiplier);
-
-      if (isNaN(stars) || isNaN(multiplier)) {
-        return alert('Invalid upgrade configuration');
+      // Validate response structure
+      if (typeof execution.response !== 'string') {
+        throw new Error('Invalid server response format');
       }
 
-      btn.disabled = true;
-      btn.textContent = 'Preparing…';
+      const result = JSON.parse(execution.response);
+      
+      if (!result?.success) {
+        throw new Error(result?.message || 'Payment processing failed');
+      }
 
-      try {
-        // a) Ask backend to create a Telegram Stars invoice link
-        const { success, invoiceLink, message } = await callBackend('createInvoice', stars, multiplier);
-        if (!success) {
-          throw new Error(message || 'Invoice creation failed');
+      window.Telegram.WebApp.openInvoice(result.invoiceLink, status => {
+        if (status === 'paid') {
+          btn.textContent = '✓ Activated';
+          btn.classList.add('active');
+        } else {
+          btn.disabled = originalState.disabled;
+          btn.textContent = originalState.text;
         }
+      });
 
-        // b) Open Telegram's native invoice UI
-        tg.openInvoice(invoiceLink, async paymentStatus => {
-          if (paymentStatus === 'paid') {
-            // c) On success, finalize the purchase (update power in DB)
-            try {
-              const { success: ok, newPower, message: msg } =
-                await callBackend('purchase', stars, multiplier);
-
-              if (!ok) {
-                return alert(`Upgrade failed: ${msg}`);
-              }
-
-              // update your UI
-              document.getElementById('power').textContent = newPower;
-              alert(`🎉 Mining power upgraded to ×${newPower}`);
-              btn.textContent = `×${multiplier} Power (⭐${stars}) ✓`;
-              btn.disabled = true;
-            } catch (e) {
-              console.error('Finalize purchase error', e);
-              alert('Error finalizing purchase');
-              btn.disabled = false;
-              btn.textContent = `×${multiplier} Power (⭐${stars})`;
-            }
-          } else {
-            // user canceled or failed
-            alert(`Payment ${paymentStatus}`);
-            btn.disabled = false;
-            btn.textContent = `×${multiplier} Power (⭐${stars})`;
-          }
-        });
-      } catch (err) {
-        console.error('Upgrade error', err);
-        alert(err.message);
-        btn.disabled = false;
-        btn.textContent = `×${multiplier} Power (⭐${stars})`;
-      }
-    });
+    } catch (error) {
+      console.error('Payment Error:', {
+        error,
+        rawResponse: execution?.response
+      });
+      
+      window.Telegram.WebApp.showAlert(
+        error.message || 'Payment processing failed'
+      );
+      
+      btn.disabled = originalState.disabled;
+      btn.textContent = originalState.text;
+    }
   });
 });
