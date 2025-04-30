@@ -7,17 +7,16 @@ tg.expand();
 tg.isVerticalSwipesEnabled = false;
 
 // Payment Handler
+const API_ENDPOINT = 'https://680e403dcabf3d90bb9c.fra.appwrite.run/';
+
 document.querySelectorAll('.upgrade-btn').forEach(button => {
     button.addEventListener('click', async () => {
-        const stars = parseInt(button.dataset.stars);
-        const user = tg.initDataUnsafe.user; // Changed WebApp to tg
-        
         try {
-            const response = await fetch('http://680e403dcabf3d90bb9c.fra.appwrite.run/', {
+            const response = await fetch(API_ENDPOINT, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${tg.initData}` // Changed WebApp to tg
+                    'Authorization': `Bearer ${tg.initData}`
                 },
                 body: JSON.stringify({
                     userId: user.id,
