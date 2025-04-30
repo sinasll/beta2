@@ -6,8 +6,6 @@ const client = new Client()
 
 const functions = new Functions(client);
 const FUNCTION_ID = "6800d0a4001cb28a32f5";
-const BOT_USERNAME = 'blackinbetabot';
-const CHANNEL_ID = '@pipcore';
 
 // DOM Elements
 const minedEl = document.getElementById('mined');
@@ -417,71 +415,6 @@ function stopMining() {
     saveMiningState();
     updateUI();
 }
-
-// Add upgrade handling
-document.querySelectorAll('.upgrade-btn').forEach(btn => {
-    btn.addEventListener('click', async function() {
-      const stars = parseInt(this.dataset.stars);
-      const multiplier = parseInt(this.dataset.multiplier);
-      
-      try {
-        const tg = window.Telegram.WebApp;
-        tg.showPopup({
-          title: 'Confirm Boost',
-          message: `Transfer ${stars} Stars to ${CHANNEL_ID} for x${multiplier} power?`,
-          buttons: [{
-            id: 'confirm',
-            type: 'ok'
-          }, {
-            id: 'cancel',
-            type: 'cancel'
-          }]
-        }, async (buttonId) => {
-          if(buttonId === 'confirm') {
-            const result = await processUpgrade(stars, multiplier);
-            if(result.success) {
-              updateUserPower(result.newPower);
-              tg.showAlert(`Success! New power: x${result.newPower}`);
-            } else {
-              tg.showAlert('Failed: ' + (result.error || 'Unknown error'));
-            }
-          }
-        });
-      } catch (error) {
-        console.error('Upgrade error:', error);
-      }
-    });
-  });
-  
-  async function processUpgrade(stars, multiplier) {
-    const tg = window.Telegram.WebApp;
-    const user = tg.initDataUnsafe.user;
-    
-    try {
-      const response = await fetch('https://fra.cloud.appwrite.io/v1/functions/680e403b001ed82fa62a/executions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Telegram-Init-Data': tg.initData
-        },
-        body: JSON.stringify({
-          action: 'purchase_upgrade',
-          user: user,
-          stars: stars,
-          multiplier: multiplier
-        })
-      });
-      
-      return await response.json();
-    } catch (error) {
-      return { success: false, error: 'Network error' };
-    }
-  }
-  
-  function updateUserPower(newPower) {
-    document.getElementById('power').textContent = newPower.toFixed(1);
-    // Add any additional UI updates here
-  }
 
 function setupTabs() {
     const tabLinks = document.querySelectorAll('.tab-list li a');
