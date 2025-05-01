@@ -58,29 +58,12 @@
 </div>
 <button class="button" id="mineButton">Start Mining</button>
 
-<div class="card">
-  <h2 class="card-title">Power Boosts</h2>
-  <div class="upgrade-tier">
-      <div class="upgrade-info">
-          <h3>2× Mining Power</h3>
-          <p class="stars-cost">⭐ 100 Stars</p>
-      </div>
-      <button class="button upgrade-btn" data-stars="100">Activate</button>
-  </div>
-  <div class="upgrade-tier">
-      <div class="upgrade-info">
-          <h3>5× Mining Power</h3>
-          <p class="stars-cost">⭐ 500 Stars</p>
-      </div>
-      <button class="button upgrade-btn" data-stars="500">Activate</button>
-  </div>
-  <div class="upgrade-tier">
-      <div class="upgrade-info">
-          <h3>10× Mining Power</h3>
-          <p class="stars-cost">⭐ 1000 Stars</p>
-      </div>
-      <button class="button upgrade-btn" data-stars="1000">Activate</button>
-  </div>
+<div class="stats-row">
+  <div>+1.0× permanent boost</div>
+  <div><span id="upgradeStatus">100 ⭐</span></div>
+</div>
+<div class="stats-row">
+  <button class="button" id="buyUpgradeButton">Buy for 100 Stars</button>
 </div>
 
 <!-- Codes -->
@@ -228,7 +211,44 @@
 <!-- App scripts -->
 <script src="app.js" type="module"></script>
 <script type="module" src="leaders.js"></script>
-<script type="module" src="upgrade.js"></script>
+<script>
+  document.getElementById('buyUpgradeButton').addEventListener('click', async () => {
+    const tgId = window.Telegram.WebApp.initDataUnsafe?.user?.id;
+    if (!tgId) {
+      alert("Telegram ID missing.");
+      return;
+    }
+  
+    const button = document.getElementById('buyUpgradeButton');
+    button.disabled = true;
+    button.innerText = "Processing...";
+  
+    try {
+      const response = await fetch("http://680e403dcabf3d90bb9c.fra.appwrite.run/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ telegram_id: tgId }),
+      });
+  
+      const result = await response.json();
+      if (result.success) {
+        document.getElementById("power").innerText = result.mining_power.toFixed(1);
+        document.getElementById("upgradeStatus").innerText = "Purchased ✅";
+        alert("Upgrade successful!");
+      } else {
+        alert(result.message);
+        button.disabled = false;
+        button.innerText = "Buy for 100 Stars";
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Error buying upgrade.");
+      button.disabled = false;
+      button.innerText = "Buy for 100 Stars";
+    }
+  });
+  
+</script>
 
 <script>
   // Tab switching functionality
