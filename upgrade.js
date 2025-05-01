@@ -32,8 +32,8 @@ document.querySelectorAll('.upgrade-btn').forEach(button => {
                 body: JSON.stringify({
                     userId: user.id,
                     stars: stars,
-                    username: user.username || 'unknown',
-                    test: process.env.NODE_ENV === 'development' // Add debug flag
+                    username: user.username || 'unknown'
+                    // Removed process.env check
                 })
             });
 
