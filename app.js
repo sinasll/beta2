@@ -439,3 +439,7 @@ async function init() {
 
 document.addEventListener('DOMContentLoaded', init);
 
+userData.miningEnded = true;
+  mineBtn.disabled     = true;
+  mineBtn.textContent  = 'Mining Ended';
+
