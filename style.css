@@ -90,6 +90,12 @@ body {
   margin-bottom: 16px;
   box-shadow: var(--box-shadow);
   border: 1px solid var(--border-color);
+  margin-top: 10px;
+}
+
+.end {
+  text-align: center;
+  font-size: 35px;
 }
 
 .card2 {
