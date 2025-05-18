@@ -1,33 +1,60 @@
-// upgrade.js
+// upgrade.js - Final Corrected Version
 
-// 1️⃣ Initialize Web App
-Telegram.WebApp.ready();
-const WebApp = Telegram.WebApp;
+// 1️⃣ Initialize Web App safely
+try {
+  Telegram.WebApp.ready();
+  Telegram.WebApp.expand();
+} catch (error) {
+  console.error("Telegram WebApp init failed:", error);
+}
 
-// 2️⃣ Cache DOM Elements
+// 2️⃣ Cache DOM elements with null checks
 const elements = {
   upgradeBtn: document.getElementById("upgradeButton"),
   powerEl: document.getElementById("power"),
-  loadingIndicator: document.getElementById("loading")
+  loadingIndicator: document.getElementById("loading"),
+  errorDisplay: document.getElementById("error-message")
 };
 
-// 3️⃣ Validate User Session
-let userId;
-try {
-  userId = WebApp.initDataUnsafe?.user?.id;
-  if (!userId) throw new Error("User session invalid");
-} catch (error) {
-  console.error("Auth Error:", error);
-  WebApp.showAlert("⚠️ Please restart the app to authenticate");
-  elements.upgradeBtn.disabled = true;
-  return;
+// Verify critical elements exist
+if (!elements.upgradeBtn || !elements.powerEl) {
+  console.error("Critical DOM elements missing");
+  if (elements.errorDisplay) {
+    elements.errorDisplay.textContent = "App configuration error";
+  }
 }
 
-// 4️⃣ API Communication Layer
-async function callBackend(action, payload = {}) {
+// 3️⃣ User session management
+function initializeUserSession() {
   try {
+    const userId = Telegram.WebApp.initDataUnsafe?.user?.id;
+    if (!userId) {
+      throw new Error("User not authenticated");
+    }
+    return userId;
+  } catch (error) {
+    console.error("Session error:", error);
+    if (elements.errorDisplay) {
+      elements.errorDisplay.textContent = "Please reopen the app from Telegram";
+    }
+    if (elements.upgradeBtn) {
+      elements.upgradeBtn.disabled = true;
+    }
+    return null;
+  }
+}
+
+const userId = initializeUserSession();
+
+// 4️⃣ Enhanced API client
+async function callBackend(action, payload = {}) {
+  if (!elements.loadingIndicator) {
+    console.warn("Loading indicator missing");
+  } else {
     elements.loadingIndicator.style.display = 'block';
-    
+  }
+
+  try {
     const response = await fetch(
       "https://fra.cloud.appwrite.io/v1/functions/680e403b001ed82fa62a/executions",
       {
@@ -38,76 +65,98 @@ async function callBackend(action, payload = {}) {
         },
         body: JSON.stringify({
           action,
-          userId,  // Always include user ID
+          userId,
           ...payload
         })
       }
     );
 
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+
     const data = await response.json();
     
-    if (!data.success) {
-      throw new Error(data.error || `Action ${action} failed`);
+    if (data?.error) {
+      throw new Error(data.message || "Backend error");
     }
 
     return data;
   } catch (error) {
-    console.error(`API Error (${action}):`, error);
-    WebApp.showAlert(`🚨 ${error.message}`);
+    console.error(`${action} failed:`, error);
+    Telegram.WebApp.showAlert(`⚠️ ${error.message}`);
     throw error;
   } finally {
-    elements.loadingIndicator.style.display = 'none';
+    if (elements.loadingIndicator) {
+      elements.loadingIndicator.style.display = 'none';
+    }
   }
 }
 
-// 5️⃣ Purchase Flow Controller
+// 5️⃣ Purchase flow with state management
 async function handleUpgrade() {
-  try {
-    WebApp.MainButton.showProgress(true);
-    
-    // Phase 1: Get Invoice
-    const { invoiceLink } = await callBackend('get_invoice');
-    if (!invoiceLink) throw new Error("No payment link received");
+  if (!userId) {
+    Telegram.WebApp.showAlert("Please authenticate first");
+    return;
+  }
 
-    // Phase 2: Handle Payment
-    WebApp.openInvoice(invoiceLink, async (status) => {
+  try {
+    Telegram.WebApp.MainButton.showProgress(true);
+    
+    // Phase 1: Invoice creation
+    const { invoiceLink } = await callBackend('get_invoice');
+    if (!invoiceLink) throw new Error("Payment system unavailable");
+
+    // Phase 2: Payment processing
+    Telegram.WebApp.openInvoice(invoiceLink, async (status) => {
       if (status === 'paid') {
-        // Phase 3: Confirm Purchase
+        // Phase 3: Power upgrade
         const result = await callBackend('purchase_power', {
           starsPaid: 100
         });
 
-        // Phase 4: Update UI
-        elements.powerEl.textContent = result.current.toFixed(1);
-        WebApp.showAlert(`
-          ✅ Success! 
+        // Phase 4: UI update
+        if (elements.powerEl) {
+          elements.powerEl.textContent = result.current.toFixed(1);
+        }
+        Telegram.WebApp.showAlert(`
+          Upgrade successful!
           New power: ${result.current.toFixed(1)}×
-          (+${result.boost.toFixed(1)} boost)
         `);
+      } else if (status === 'failed') {
+        Telegram.WebApp.showAlert("Payment failed. Please try again");
       }
     });
   } catch (error) {
-    console.error("Purchase Flow Error:", error);
+    console.error("Upgrade failed:", error);
   } finally {
-    WebApp.MainButton.showProgress(false);
+    Telegram.WebApp.MainButton.showProgress(false);
   }
 }
 
-// 6️⃣ Initial Setup
-function initialize() {
+// 6️⃣ Initialization
+function initializeApp() {
   // Load initial power value
-  callBackend('get_power')
-    .then(data => {
-      elements.powerEl.textContent = data.power.toFixed(1);
-    })
-    .catch(() => {
-      elements.powerEl.textContent = '1.0';
-    });
+  if (userId) {
+    callBackend('get_power')
+      .then(data => {
+        if (elements.powerEl && data?.power) {
+          elements.powerEl.textContent = data.power.toFixed(1);
+        }
+      })
+      .catch(() => {
+        if (elements.powerEl) {
+          elements.powerEl.textContent = '1.0';
+        }
+      });
+  }
 
-  // Event Binding
-  elements.upgradeBtn.addEventListener('click', handleUpgrade);
-  elements.upgradeBtn.disabled = false;
+  // Set up event listeners
+  if (elements.upgradeBtn) {
+    elements.upgradeBtn.addEventListener('click', handleUpgrade);
+    elements.upgradeBtn.disabled = !userId;
+  }
 }
 
-// 🚀 Start Application
-initialize();
+// Start the application
+document.addEventListener('DOMContentLoaded', initializeApp);
