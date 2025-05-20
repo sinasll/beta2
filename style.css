@@ -117,6 +117,10 @@ body {
   color: var(--hint-color);
 }
 
+.desc {
+  font-size: 11px;
+}
+
 .button,
 input[type="text"],
 input[type="submit"] {
