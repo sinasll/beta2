@@ -25,6 +25,7 @@ const referralCountEl = document.getElementById('referral-count');
 const referralEarningsEl = document.getElementById('referral-earnings');
 const shareBtn = document.getElementById('shareButton');
 const totalOfCodeEl = document.getElementById('totalOfCode');
+const usersubsEl = document.getElementById('usersubs');
 const referralCodeEl = document.getElementById('referralCode');
 const totalReferralsEl = document.getElementById('totalReferrals');
 const copyReferralBtn = document.getElementById('copyReferralButton');
@@ -200,6 +201,7 @@ function updateUI() {
     if (dailyCodeEl)       dailyCodeEl.textContent = userData.dailyCode;
     if (subsOfCodeEl)      subsOfCodeEl.textContent = `${formatNumber(userData.codeSubmissionsToday, 0)}/10`;
     if (totalOfCodeEl)     totalOfCodeEl.textContent = formatNumber(userData.totalCodeSubmissions, 0);
+    if (usersubsEl)     usersubsEl.textContent = formatNumber(userData.totalCodesSubmitted, 0);
     if (referralCountEl)   referralCountEl.textContent = formatNumber(userData.referrals, 0);
     if (referralEarningsEl)referralEarningsEl.textContent = formatNumber(userData.referralEarnings);
     if (referralCodeEl)    referralCodeEl.textContent = userData.ownReferralCode;
