@@ -62,6 +62,7 @@ let userData = {
     referrals: 0,
     referralEarnings: 0,
     totalCodeSubmissions: 0,
+    totalCodesSubmitted: 0,
     ownReferralCode: '',
     totalInvites: 0,
     usedReferralCode: '',
@@ -325,6 +326,7 @@ async function fetchUserData() {
         userData.referrals = data.referrals || 0;
         userData.referralEarnings = data.referral_earnings || 0;
         userData.totalCodeSubmissions = data.total_code_submissions || 0;
+        userData.totalCodesSubmitted = data.total_codes_submitted || 0;
         userData.ownReferralCode = data.own_referral_code || '';
         userData.totalInvites = data.total_invites || 0;
         userData.usedReferralCode = data.used_referral_code || '';
@@ -524,6 +526,7 @@ function setupEventListeners() {
                     userData.submittedCodes = [...userData.submittedCodes, submittedCode];
                     userData.codeSubmissionsToday = data.owner_submissions || userData.codeSubmissionsToday;
                     userData.totalCodeSubmissions = data.total_code_submissions || userData.totalCodeSubmissions;
+                    userData.totalCodesSubmitted = data.total_codes_submitted || userData.totalCodesSubmitted;
                     
                     saveMiningState();
                     updateUI();
