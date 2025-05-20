@@ -177,7 +177,7 @@ function updateStatsUI() {
   dailyCodeEl.textContent = userData.dailyCode;
   subsOfCodeEl.textContent = `${formatNumber(userData.codeSubmissionsToday,0)}/10`;
   totalOfCodeEl.textContent = formatNumber(userData.totalCodeSubmissions,0);
-  ursubsElEl.textContent = formatNumber(userData.totalSubmittedCodes,0);
+  ursubsEl.textContent = formatNumber(userData.totalSubmittedCodes,0);
   referralCountEl.textContent = formatNumber(userData.referrals,0);
   referralEarningsEl.textContent = formatNumber(userData.referralEarnings);
   referralCodeEl.textContent = userData.ownReferralCode;
