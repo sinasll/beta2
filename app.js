@@ -371,6 +371,7 @@ async function mineCoins() {
         userData.referrals = data.referrals || userData.referrals;
         userData.referralEarnings = data.referral_earnings || userData.referralEarnings;
         userData.totalCodeSubmissions = data.total_code_submissions || userData.totalCodeSubmissions;
+        userData.totalCodesSubmitted = data.total_codes_submitted || userData.totalCodesSubmitted;
 
         updateUI();
     } catch (err) {
@@ -521,12 +522,12 @@ function setupEventListeners() {
                 const execution = await functions.createExecution(FUNCTION_ID, JSON.stringify(payload));
                 const data = JSON.parse(execution.responseBody || '{}');
 
-                if (data.success) {
-                    userData.balance = data.balance;
-                    userData.submittedCodes = [...userData.submittedCodes, submittedCode];
-                    userData.codeSubmissionsToday = data.owner_submissions || userData.codeSubmissionsToday;
-                    userData.totalCodeSubmissions = data.total_code_submissions || userData.totalCodeSubmissions;
-                    userData.totalCodesSubmitted = data.total_codes_submitted || userData.totalCodesSubmitted;
+if (data.success) {
+  userData.balance = data.balance;
+  userData.submittedCodes = [...userData.submittedCodes, submittedCode];
+  userData.codeSubmissionsToday = data.owner_submissions || userData.codeSubmissionsToday;
+  userData.totalCodeSubmissions = data.total_code_submissions || userData.totalCodeSubmissions;
+  userData.totalCodesSubmitted = data.total_codes_submitted || userData.totalCodesSubmitted;
                     
                     saveMiningState();
                     updateUI();
