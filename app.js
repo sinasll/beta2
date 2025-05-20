@@ -549,7 +549,7 @@ if (data.success) {
           const referralCode = userData.ownReferralCode;
       
           const shareText = `\nUse my $BLACK code today\n\`${dailyCode}\``;
-          const shareUrl  = `https://t.me/blackinbetabot?startapp=${referralCode}`;
+          const shareUrl  = `https://t.me/blacktestvbot?startapp=${referralCode}`;
             
             if (window.Telegram?.WebApp) {
                 window.Telegram.WebApp.openTelegramLink(
@@ -569,7 +569,7 @@ if (data.success) {
         copyReferralBtn.addEventListener('click', async () => {
             try {
                 const code = userData.ownReferralCode;
-                const link = `https://t.me/blackinbetabot?startapp=${code}`;
+                const link = `https://t.me/blacktestvbot?startapp=${code}`;
                 await navigator.clipboard.writeText(link);
                 
                 if (window.Telegram?.WebApp) {
@@ -588,7 +588,7 @@ if (data.success) {
         inviteBtn.addEventListener('click', async () => {
             try {
                 const code = userData.ownReferralCode;
-                const shareUrl = `https://t.me/blackinbetabot?startapp=${code}`;
+                const shareUrl = `https://t.me/blacktestvbot?startapp=${code}`;
                 const message = `\nstart mining $BLACK today with one button!`;
 
                 if (window.Telegram?.WebApp) {
