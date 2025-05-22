@@ -20,13 +20,14 @@
 <h1 class="logo">$BLACK</h1>
 </div>
 
-
 <!-- Main container -->
 <div class="container">
 <!-- Mining tab -->
 <div id="mine-tab" class="tab-content active">
 <!-- Global stats -->
-<div class="card global-stats">
+<div class="card global-stats" style="position: relative;">
+<h2 class="card-title">Info</h2>
+<span class="hint-icon">?</span>
 <div class="stats-row">
 <div>Blockchain</div>
 <div>TON</div>
@@ -40,22 +41,22 @@
 <div><span id="totalminers">0</span></div>
 </div>
 <div class="countdown" id="countdown">daily resets in 00:00:00 <div class="mining-hint">
-  <span class="hint-icon">?</span>
-</div></div>
+</div>
+</div>
 
 <!-- Modal -->
 <div id="infoModal" class="modal-overlay">
   <div class="modal-window">
     <button class="modal-close">&times;</button>
-    <h2>how mining works?</h2>
+    <h2>how it works?</h2>
     <ol>
       <li>
         <strong>Mining Session:</strong><br>
         Click “Start Mining” once per day. Runs until the next reset at <strong>12:00 UTC</strong>.
       </li>
       <li>
-        <strong>Earning Rate:</strong><br>
-        You earn <strong>0.1 $BLACK/sec</strong> × your Mining Power (boosted by codes).
+        <strong>Mining Rate:</strong><br>
+        You mine <strong>5 $BLACKs/day</strong> at default Mining Power (boost by codes).
       </li>
       <li>
         <strong>Your Daily Code:</strong><br>
@@ -63,11 +64,12 @@
       </li>
       <li>
         <strong>Code Submissions:</strong><br>
-        Friends submit your code, you gain <strong>+0.1× Mining Power</strong> per submission (max 10/day), and they get <strong>+0.5×</strong>. Resets at 12:00 UTC.
+        Each user can submit one code per day to earn <strong>+0.5× Mining Power</strong>.
+        For each submission made to their code by others, they earn <strong>+0.2× Mining Power</strong> (up to 10 submissions per day).
       </li>
       <li>
         <strong>Referrals:</strong><br>
-        New users who join via your link count as referrals you earn a token bonus per referral.
+        New users who join via your link count as referrals you earn tokens for that.
       </li>
       <li>
         <strong>Daily Reset:</strong><br>
@@ -76,77 +78,6 @@
     </ol>
   </div>
 </div>
-
-<!-- Scoped Styles -->
-<style>
-  :root {
-    --overlay-bg: rgba(0,0,0,0.8);
-  }
-
-  .mining-hint {
-    display: inline-block;
-    margin-left: 8px;
-  }
-  .hint-icon {
-    background: var(--secondary-bg);
-    color: var(--hint-color);
-    border: 1px solid var(--border-color);
-    border-radius: 50%;
-    width: 20px; height: 20px;
-    display: flex; align-items: center; justify-content: center;
-    font-family: 'Silkscreen', sans-serif;
-    font-size: 12px; cursor: pointer;
-  }
-
-  .modal-overlay {
-    display: none;
-    position: fixed;
-    top: 0; left: 0; width: 100vw; height: 100vh;
-    background: var(--overlay-bg);
-    align-items: center; justify-content: center;
-    z-index: 1000;
-  }
-  .modal-window {
-    background: var(--secondary-bg);
-    color: var(--text-color);
-    padding: 1px;
-    border-radius: var(--card-radius);
-    box-shadow: var(--box-shadow);
-    border: 1px solid var(--border-color);
-    width: calc(80% - 32px);
-    max-width: 600px;
-    max-height: calc(90vh - var(--header-height) - var(--nav-height) - 32px);
-    overflow-y: auto;
-    position: relative;
-    font-family: 'Silkscreen', sans-serif;
-  }
-  .modal-window h2 {
-    margin-top: 0;
-    font-size: 1.2em;
-    font-weight: 600;
-    color: var(--accent-color);
-  }
-  .modal-window ol {
-    margin: 12px 0 0 20px;
-    line-height: 1.4;
-    font-size: 0.8em;
-    text-align: left;
-  }
-  .modal-window li + li {
-    margin-top: 20px;
-    text-align: left;
-  }
-
-  .modal-close {
-    position: absolute;
-    top: 8px; right: 8px;
-    background: transparent; border: none;
-    font-size: 20px; line-height: 1;
-    color: var(--hint-color);
-    cursor: pointer;
-  }
-</style>
-
 <!-- Toggle Script -->
 <script>
   const hintIcon = document.querySelector('.hint-icon');
@@ -198,15 +129,15 @@
 <div><span id="dailyCode">…</span></div>
 </div>
 <div class="stats-row">
-<div class="desc">Total Codes You’ve Used</div>
+<div>Total Codes You’ve Used</div>
 <div><span id="usersubs">0</span></div>
 </div>
 <div class="stats-row">
-<div class="desc">Your Code Usage Today</div>
+<div>Your Code Usage Today</div>
 <div><span id="subsOfCode">0/10</span></div>
 </div>
 <div class="stats-row">
-<div class="desc">All Time Usage of Your Code</div>
+<div>All Time Usage of Your Code</div>
 <div><span id="totalOfCode">0</span></div>
 </div>
 <div class="stats-row">
@@ -217,7 +148,6 @@
 <input type="text" id="codeInput" placeholder="enter code . . ." class="input"/>
 </div>
 <div class="stats-row">
-<button class="button" id="pasteButton">Paste</button>
 <button class="button" id="submitButton">Submit</button>
 </div>
 </div>
@@ -297,6 +227,7 @@
           Join our Telegram channel  
           <a href="https://t.me/+1jp73BA89CNkMTg6" target="_blank"></a>
         </div>
+        <span class="task-reward">+10 $BLACK</span>
         <button class="button complete-task">Claim</button>
       </li>
 
@@ -305,6 +236,7 @@
           Join our Telegram group  
           <a href="https://t.me/+1jp73BA89CNkMTg6" target="_blank"></a>
         </div>
+        <span class="task-reward">+10 $BLACK</span>
         <button class="button complete-task">Claim</button>
       </li>
 
@@ -313,6 +245,7 @@
           Follow $BLACK X  
           <a href="https://x.com/_blackxin" target="_blank"></a>
         </div>
+        <span class="task-reward">+10 $BLACK</span>
         <button class="button complete-task">Claim</button>
       </li>
     </ul>
@@ -324,16 +257,19 @@
     <ul class="task-list">
       <li class="task-item" data-task="code100">
         <div class="task-desc">Reach 100 uses</div>
+        <span class="task-reward">+100 $BLACK</span>
         <button class="button complete-task">Claim</button>
       </li>
 
       <li class="task-item" data-task="code200">
         <div class="task-desc">Reach 200 uses</div>
+        <span class="task-reward">+200 $BLACK</span>
         <button class="button complete-task">Claim</button>
       </li>
 
       <li class="task-item" data-task="code300">
         <div class="task-desc">Reach 300 uses</div>
+        <span class="task-reward">+300 $BLACK</span>
         <button class="button complete-task">Claim</button>
       </li>
     </ul>
@@ -345,16 +281,19 @@
     <ul class="task-list">
       <li class="task-item" data-task="code10">
         <div class="task-desc">Use 10 Codes</div>
+        <span class="task-reward">+100 $BLACK</span>
         <button class="button complete-task">Claim</button>
       </li>
 
       <li class="task-item" data-task="code20">
         <div class="task-desc">Use 20 Codes</div>
+        <span class="task-reward">+200 $BLACK</span>
         <button class="button complete-task">Claim</button>
       </li>
 
       <li class="task-item" data-task="code30">
         <div class="task-desc">Use 30 Codes</div>
+        <span class="task-reward">+300 $BLACK</span>
         <button class="button complete-task">Claim</button>
       </li>
     </ul>

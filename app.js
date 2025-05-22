@@ -189,14 +189,13 @@ function updateUI() {
     if (powerEl)  powerEl.textContent = formatNumber(userData.miningPower, 1);
 
     if (mineBtn) {
-      // disable whenever mining or after reset
-      mineBtn.disabled = userData.isMining || isAfterResetTime();
-
-      if (userData.isMining) {
-        startDotAnimation();
-      } else {
-        stopDotAnimation();
-      }
+        mineBtn.disabled = userData.isMining || isAfterResetTime();
+        // Button text reflects mining state from backend
+        if (userData.isMining) {
+            startDotAnimation();
+        } else {
+            stopDotAnimation();
+        }
     }
 
     if (dailyCodeEl)       dailyCodeEl.textContent = userData.dailyCode;
@@ -447,6 +446,11 @@ function setupEventListeners() {
         mineBtn.addEventListener('click', async () => {
             if (!userData.isMining && !isAfterResetTime()) {
                 await startMining();
+                mineBtn.disabled = true;
+                startDotAnimation();
+            } else if (userData.isMining) {
+                mineBtn.disabled = true;
+                startDotAnimation();
             } else if (isAfterResetTime()) {
                 alert('Mining reset — please start again!');
                 await fetchUserData();
@@ -461,49 +465,6 @@ function setupEventListeners() {
                 copyBtn.textContent = 'Copied';
                 setTimeout(() => copyBtn.textContent = 'Copy', 2000);
             } catch {}
-        });
-    }
-
-    const pasteButton = document.getElementById('pasteButton');
-    const codeInput = document.getElementById('codeInput');
-    
-    if (pasteButton && codeInput) {
-        pasteButton.addEventListener('click', async () => {
-            try {
-                codeInput.focus();
-                const clipboardText = await navigator.clipboard.readText();
-                
-                if (clipboardText) {
-                    codeInput.value = clipboardText;
-                    codeInput.dispatchEvent(new Event('input'));
-                    pasteButton.textContent = 'Pasted';
-                } else {
-                    pasteButton.textContent = 'Empty';
-                }
-            } catch (error) {
-                if (error.name === 'NotAllowedError') {
-                    try {
-                        pasteButton.textContent = '📎 Tap to paste';
-                        const oldValue = codeInput.value;
-                        codeInput.value = '';
-                        codeInput.select();
-                        
-                        if (document.execCommand('paste')) {
-                            if (codeInput.value === '') codeInput.value = oldValue;
-                            pasteButton.textContent = 'Pasted!';
-                        }
-                    } catch (err) {
-                        pasteButton.textContent = 'Allow access';
-                    }
-                } else {
-                    pasteButton.textContent = 'Failed!';
-                }
-            } finally {
-                setTimeout(() => {
-                    pasteButton.textContent = 'Paste';
-                    codeInput.blur();
-                }, 2000);
-            }
         });
     }
 
@@ -619,14 +580,11 @@ async function init() {
     loadMiningState();
     
     try {
-        await fetchUserData();
-        await fetchReferredFriends();
-        if (userData.isMining && !isAfterResetTime()) {
-            await startMining();
-        }
-    } catch (error) {
-        console.error('Initialization error:', error);
-    }
+    await fetchUserData();
+    await fetchReferredFriends();
+  } catch (error) {
+    console.error('Initialization error:', error);
+  }
 
     setInterval(updateCountdown, 1000);
     setInterval(async () => {
