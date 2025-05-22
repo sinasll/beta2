@@ -291,7 +291,6 @@ input[type="submit"] {
 .friends-container {
   max-height: 200px;
   overflow-y: auto;
-  background: black;
 }
 
 .friend-item {
