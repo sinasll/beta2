@@ -12,7 +12,7 @@
   --input-button-width: calc(100% - 32px);
   --input-button-padding: 14px 16px;
   --input-button-margin: 8px 16px;
-  --header-height: 60px;
+  --header-height: 20px;
   --nav-height: 70px;
 }
 
@@ -45,29 +45,6 @@ font-family: "Inter", sans-serif;
   border-radius: 50%;
   opacity: 0.5;
   filter: blur(2px);
-}
-
-.header {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: var(--header-height);
-  border-bottom: 1px solid var(--border-color);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 100;
-  background-color: #000000;
-}
-
-.logo {
-font-family: "Inter", sans-serif;
-  font-size: 1.8em;
-  font-weight: 800;
-  letter-spacing: 2px;
-  color: var(--accent-color);
-  user-select: none;
 }
 
 .container {
@@ -315,9 +292,6 @@ input[type="submit"] {
   max-height: 200px;
   overflow-y: auto;
   background: black;
-  border-radius: 12px;
-  margin-bottom: 8px;
-  border: 1px solid rgba(255,255,255,0.1);
 }
 
 .friend-item {
