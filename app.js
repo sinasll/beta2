@@ -589,27 +589,29 @@ if (submitBtn) {
 }
 
 if (sendBtn) {
-    sendBtn.addEventListener('click', async () => {
-        const dailyCode = dailyCodeEl.textContent.trim();
-        const referralCode = userData.ownReferralCode;
-        
-        // Use MarkdownV2 syntax with proper encoding
-        const shareText = encodeURIComponent(`Use my $BLACK code today\n\`${dailyCode}\``);
-        const shareUrl = `https://t.me/blacktestvbot?startapp=${referralCode}`;
+  sendBtn.addEventListener('click', async () => {
+    const dailyCode = dailyCodeEl.textContent.trim();
+    const referralCode = userData.ownReferralCode;
 
-        if (window.Telegram?.WebApp) {
-            // Force Markdown parsing with parse_mode
-            window.Telegram.WebApp.openTelegramLink(
-                `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${shareText}&parse_mode=markdown`
-            );
-        } else {
-            navigator.clipboard.writeText(`Use my $BLACK code today\n\`${dailyCode}\``);
-            alert('Code copied to clipboard!');
-        }
-        
-        sendBtn.textContent = 'Sending';
-        setTimeout(() => sendBtn.textContent = 'Send', 2000);
-    });
+    // Escape any MarkdownV2-special chars in the code itself
+    const escapedCode = dailyCode.replace(/([_*\[\]()~`>#+\-=|{}.!])/g, '\\$1');
+
+    // Build the message using inline backticks for monospace
+    const shareText = `Use my $BLACK code today\n\`${escapedCode}\``;
+
+    // If you’re in a WebApp context, use sendMessage with MarkdownV2
+    if (window.Telegram?.WebApp) {
+      await window.Telegram.WebApp.sendMessage(shareText, { parse_mode: 'MarkdownV2' });
+    } else {
+      // Fallback: copy to clipboard
+      navigator.clipboard.writeText(shareText);
+      alert('Code copied to clipboard!');
+    }
+
+    // Button UI feedback
+    sendBtn.textContent = 'Sending';
+    setTimeout(() => sendBtn.textContent = 'Send', 2000);
+  });
 }
 
 if (copyReferralBtn) {
