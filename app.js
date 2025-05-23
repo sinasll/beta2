@@ -520,6 +520,13 @@ function setupEventListeners() {
 }
 
 if (submitBtn) {
+    // Function to dismiss keyboard
+    const dismissKeyboard = () => {
+        if (document.activeElement === codeInput) {
+            codeInput.blur(); // This removes focus and hides keyboard
+        }
+    };
+
     submitBtn.addEventListener('click', async () => {
         const submittedCode = codeInput.value.trim();
         if (!submittedCode) return tgAlert('Please enter a code to submit');
@@ -545,6 +552,9 @@ if (submitBtn) {
                 updateUI();
                 showToast(data.message || 'Code submitted successfully!');
                 codeInput.value = '';
+                
+                // Dismiss keyboard after successful submission
+                dismissKeyboard();
             } else {
                 showToast(data.message || 'Code submission failed');
             }
@@ -558,32 +568,49 @@ if (submitBtn) {
     codeInput.addEventListener('keypress', async (e) => {
         if (e.key === 'Enter') {
             e.preventDefault();
+            dismissKeyboard(); // Dismiss keyboard when Enter pressed
             submitBtn.click();
+        }
+    });
+
+    // Close keyboard when tapping outside
+    document.addEventListener('touchstart', (e) => {
+        if (!codeInput.contains(e.target)) {
+            dismissKeyboard();
+        }
+    });
+
+    // Close keyboard when clicking outside (desktop)
+    document.addEventListener('mousedown', (e) => {
+        if (!codeInput.contains(e.target)) {
+            dismissKeyboard();
         }
     });
 }
 
-    if (sendBtn) {
-        sendBtn.addEventListener('click', async () => {
-          const dailyCode    = dailyCodeEl.textContent.trim();
-          const referralCode = userData.ownReferralCode;
-      
-          const shareText = `\nUse my $BLACK code today\n\`${dailyCode}\``;
-          const shareUrl  = `https://t.me/blacktestvbot?startapp=${referralCode}`;
-            
-            if (window.Telegram?.WebApp) {
-                window.Telegram.WebApp.openTelegramLink(
-                    `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}`
-                );
-            } else {
-                navigator.clipboard.writeText(shareText);
-                alert('Code copied to clipboard!');
-            }
-            
-            sendBtn.textContent = 'Sending';
-            setTimeout(() => sendBtn.textContent = 'Send', 2000);
-        });
-    }
+if (sendBtn) {
+    sendBtn.addEventListener('click', async () => {
+        const dailyCode = dailyCodeEl.textContent.trim();
+        const referralCode = userData.ownReferralCode;
+        
+        // Use MarkdownV2 syntax with proper encoding
+        const shareText = encodeURIComponent(`Use my $BLACK code today\n\`${dailyCode}\``);
+        const shareUrl = `https://t.me/blacktestvbot?startapp=${referralCode}`;
+
+        if (window.Telegram?.WebApp) {
+            // Force Markdown parsing with parse_mode
+            window.Telegram.WebApp.openTelegramLink(
+                `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${shareText}&parse_mode=markdown`
+            );
+        } else {
+            navigator.clipboard.writeText(`Use my $BLACK code today\n\`${dailyCode}\``);
+            alert('Code copied to clipboard!');
+        }
+        
+        sendBtn.textContent = 'Sending';
+        setTimeout(() => sendBtn.textContent = 'Send', 2000);
+    });
+}
 
 if (copyReferralBtn) {
     copyReferralBtn.addEventListener('click', async () => {
