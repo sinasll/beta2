@@ -280,15 +280,10 @@ textarea:focus ~ .nav {
   }
 }
 
-@media (max-width: 768px) {
-  body:focus-within .nav {
-    display: none !important;
-  }
-
-  body:not(:focus-within) .nav {
-    display: flex;
-  }
+body:focus-within .container {
+  padding-bottom: 0 !important;
 }
+
 
 /* Tab content switch */
 .tab-content {
