@@ -113,14 +113,9 @@
 <button class="button" id="mineButton">Start Mining</button>
 
 <!-- Upgrade -->
-<button id="upgradeBtn" class="button">Upgrade</button>
-<script>
-  Telegram.WebApp.ready();
-  document.getElementById('upgradeBtn').addEventListener('click', () => {
-    Telegram.WebApp.openLink('tg://resolve?domain=blacktestvbot&start=upgrade');
-  });
-</script>
-
+<a href="https://t.me/blacktestvbot?start=upgrade" target="_blank" class="upgrade-button-link">
+  <button class="button">Upgrade</button>
+</a>
 
 </div>
 
