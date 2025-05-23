@@ -588,40 +588,27 @@ if (submitBtn) {
     });
 }
 
-if (sendBtn) {
-  sendBtn.addEventListener('click', async () => {
-    const dailyCode = dailyCodeEl.textContent.trim();
-    const referralCode = userData.ownReferralCode;
-
-    // 1) Escape all MarkdownV2-sensitive characters in your code
-    const escaped = dailyCode.replace(/([_*\[\]()~`>#+\-=|{}.!])/g, '\\$1');
-
-    // 2) Build your message with inline backticks
-    const shareText = `Use my $BLACK code today\n\`${escaped}\``;
-
-    // 3) If shareMessage is available, use it
-    if (window.Telegram?.WebApp?.shareMessage) {
-      window.Telegram.WebApp.shareMessage({
-        // text to send
-        message: shareText,
-        // your bot username (so it shares to the right chat)
-        botUsername: 'blacktestvbot',
-        // tell Telegram to parse MarkdownV2
-        parseMode: 'MarkdownV2',
-        // allow the user to forward it if they like
-        allowToForward: true,
-      });
-    } else {
-      // Fallback for older clients: copy to clipboard
-      navigator.clipboard.writeText(shareText);
-      alert('Code copied to clipboard!');
+    if (sendBtn) {
+        sendBtn.addEventListener('click', async () => {
+          const dailyCode    = dailyCodeEl.textContent.trim();
+          const referralCode = userData.ownReferralCode;
+      
+          const shareText = `\nUse my $BLACK code today\n\`${dailyCode}\``;
+          const shareUrl  = `https://t.me/blacktestvbot?startapp=${referralCode}`;
+            
+            if (window.Telegram?.WebApp) {
+                window.Telegram.WebApp.openTelegramLink(
+                    `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}`
+                );
+            } else {
+                navigator.clipboard.writeText(shareText);
+                alert('Code copied to clipboard!');
+            }
+            
+            sendBtn.textContent = 'Sending';
+            setTimeout(() => sendBtn.textContent = 'Send', 2000);
+        });
     }
-
-    // Button feedback
-    sendBtn.textContent = 'Sending';
-    setTimeout(() => sendBtn.textContent = 'Send', 2000);
-  });
-}
 
 
 if (copyReferralBtn) {
