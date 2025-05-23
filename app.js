@@ -199,20 +199,32 @@ let dotInterval = null;
 let dotCount = 0;
 
 // call this to kick off the dots animation
+// Modified animation functions
 function startDotAnimation() {
-  if (dotInterval) return;               // already running
-  dotInterval = setInterval(() => {
-    dotCount = (dotCount % 3) + 1;       // 1 → 2 → 3 → 1 …
-    mineBtn.textContent = `Mining ${Array(dotCount).fill('.').join(' ')}`;
-  }, 500);                               // change every 500ms
+    if (dotInterval) return;
+    const dotsContainer = mineBtn.querySelector('.dots-container');
+    
+    dotInterval = setInterval(() => {
+        dotCount = (dotCount % 3) + 1;
+        dotsContainer.textContent = '.'.repeat(dotCount);
+    }, 500);
+    
+    mineBtn.querySelector('.mining-text').textContent = 'Mining';
 }
 
-// call this to stop it and reset
 function stopDotAnimation() {
-  clearInterval(dotInterval);
-  dotInterval = null;
-  dotCount = 0;
-  mineBtn.textContent = 'Start Mining';
+    clearInterval(dotInterval);
+    dotInterval = null;
+    dotCount = 0;
+    mineBtn.querySelector('.mining-text').textContent = 'Start Mining';
+    mineBtn.querySelector('.dots-container').textContent = '';
+}
+
+// Update UI handling
+if (userData.isMining) {
+    startDotAnimation();
+} else {
+    stopDotAnimation();
 }
 
 function updateUI() {

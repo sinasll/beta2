@@ -50,7 +50,7 @@
     <ol>
       <li>
         <strong>Mining Session:</strong><br>
-        Click “Start Mining” once per day. Runs until the next reset at <strong>12:00 UTC</strong>.
+        Click “Start Mining” once per day and mining continues in the background, this means even when you close the mini app it still does the mining. Runs until the next reset at <strong>12:00 UTC</strong>.
       </li>
       <li>
         <strong>Mining Rate:</strong><br>
@@ -110,7 +110,19 @@
 <div>Mining Power</div>
 <div>x<span id="power">1.0</span></div>
 </div>
-<button class="button" id="mineButton">Start Mining</button>
+<button class="button" id="mineButton">
+    <span class="mining-text">Start Mining</span>
+    <span class="dots-container"></span>
+</button>
+<style>
+/* Add CSS to prevent text shifting */
+.dots-container {
+    display: inline-block;
+    width: 3ch; /* Fixed width for 3 dots */
+    text-align: left;
+    font-family: monospace;
+}
+</style>
 
 <!-- Upgrade -->
 <a href="https://t.me/blacktestvbot?start=upgrade" target="_blank" class="upgrade-button-link">
