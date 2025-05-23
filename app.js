@@ -593,26 +593,36 @@ if (sendBtn) {
     const dailyCode = dailyCodeEl.textContent.trim();
     const referralCode = userData.ownReferralCode;
 
-    // Escape any MarkdownV2-special chars in the code itself
-    const escapedCode = dailyCode.replace(/([_*\[\]()~`>#+\-=|{}.!])/g, '\\$1');
+    // 1) Escape all MarkdownV2-sensitive characters in your code
+    const escaped = dailyCode.replace(/([_*\[\]()~`>#+\-=|{}.!])/g, '\\$1');
 
-    // Build the message using inline backticks for monospace
-    const shareText = `Use my $BLACK code today\n\`${escapedCode}\``;
+    // 2) Build your message with inline backticks
+    const shareText = `Use my $BLACK code today\n\`${escaped}\``;
 
-    // If you’re in a WebApp context, use sendMessage with MarkdownV2
-    if (window.Telegram?.WebApp) {
-      await window.Telegram.WebApp.sendMessage(shareText, { parse_mode: 'MarkdownV2' });
+    // 3) If shareMessage is available, use it
+    if (window.Telegram?.WebApp?.shareMessage) {
+      window.Telegram.WebApp.shareMessage({
+        // text to send
+        message: shareText,
+        // your bot username (so it shares to the right chat)
+        botUsername: 'blacktestvbot',
+        // tell Telegram to parse MarkdownV2
+        parseMode: 'MarkdownV2',
+        // allow the user to forward it if they like
+        allowToForward: true,
+      });
     } else {
-      // Fallback: copy to clipboard
+      // Fallback for older clients: copy to clipboard
       navigator.clipboard.writeText(shareText);
       alert('Code copied to clipboard!');
     }
 
-    // Button UI feedback
+    // Button feedback
     sendBtn.textContent = 'Sending';
     setTimeout(() => sendBtn.textContent = 'Send', 2000);
   });
 }
+
 
 if (copyReferralBtn) {
     copyReferralBtn.addEventListener('click', async () => {
