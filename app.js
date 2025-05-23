@@ -294,7 +294,14 @@ function refreshTasksState() {
     taskItems.forEach(li => {
         const task = li.dataset.task;
         const done = !!userData.tasksCompleted[task];
-        const prereqMet = task !== 'code10' || userData.totalCodeSubmissions >= 10;
+        
+        // Define prereqMet based on task type
+        const prereqMet = 
+            task === 'code10' ? userData.totalCodesSubmitted >= 10 :
+            task === 'code20' ? userData.totalCodesSubmitted >= 20 :
+            task === 'code30' ? userData.totalCodesSubmitted >= 30 :
+            true; // Default for other tasks (no prerequisite)
+        
         const btn = li.querySelector('.complete-task');
         btn.disabled = done || !prereqMet;
         btn.textContent = done ? 'Done' : 'Claim';
