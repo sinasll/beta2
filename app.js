@@ -300,7 +300,10 @@ function refreshTasksState() {
             task === 'code10' ? userData.totalCodesSubmitted >= 10 :
             task === 'code20' ? userData.totalCodesSubmitted >= 20 :
             task === 'code30' ? userData.totalCodesSubmitted >= 30 :
-            true; // Default for other tasks (no prerequisite)
+            task === 'code100' ? userData.totalCodeSubmissions >= 100 :
+            task === 'code200' ? userData.totalCodeSubmissions >= 200 :
+            task === 'code300' ? userData.totalCodeSubmissions >= 300 :
+            true;
         
         const btn = li.querySelector('.complete-task');
         btn.disabled = done || !prereqMet;
