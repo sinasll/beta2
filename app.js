@@ -72,6 +72,39 @@ let userData = {
 
 let mineInterval = null;
 
+// toast alert
+function showToast(message, type = 'success', duration = 4000) {
+  const container = document.getElementById('toast-container');
+  if (!container) return;
+
+  // Remove any existing toast
+  container.innerHTML = '';
+
+  // Create new toast
+  const toast = document.createElement('div');
+  toast.className = `toast toast-${type}`;
+  toast.textContent = message;
+  container.appendChild(toast);
+
+  // Auto-dismiss after `duration`
+  setTimeout(() => {
+    toast.addEventListener('animationend', () => toast.remove());
+    toast.classList.add('fade');
+  }, duration);
+}
+
+
+// Override default alert:
+window.originalAlert = window.alert;
+window.alert = msg => showToast(msg, 'error');
+
+// Override your Telegram wrapper (if you use one):
+function tgAlert(message) {
+  showToast(message, 'error');
+}
+
+
+
 // Helper function to format numbers
 function formatNumber(num, decimals = 3) {
     if (isNaN(num)) return '0' + '0'.repeat(decimals);
@@ -286,11 +319,11 @@ async function handleTaskClick(task) {
             refreshTasksState();
             updateUI();
         } else {
-            alert(data.message || 'Task failed');
+            showToast(data.message || 'Task failed');
         }
     } catch (err) {
         console.error('Task error:', err);
-        alert(err.message || 'Error completing task');
+        tgAlert(err.message || 'Error completing task');
     }
 }
 
@@ -392,7 +425,7 @@ async function startMining() {
         const data = JSON.parse(execution.responseBody || '{}');
 
         if (data.error || !data.started) {
-            alert(data.message || 'Failed to start mining');
+            showToast(data.message || 'Failed to start mining');
             return;
         }
 
@@ -468,41 +501,49 @@ function setupEventListeners() {
         });
     }
 
-    if (submitBtn) {
-        submitBtn.addEventListener('click', async () => {
-            const submittedCode = codeInput.value.trim();
-            if (!submittedCode) return alert('Please enter a code to submit');
-
-            try {
-                const payload = {
-                    ...initializeUser(),
-                    action: 'submit_code',
-                    code: submittedCode
-                };
-
-                const execution = await functions.createExecution(FUNCTION_ID, JSON.stringify(payload));
-                const data = JSON.parse(execution.responseBody || '{}');
-
-if (data.success) {
-  userData.balance = data.balance;
-  userData.submittedCodes = [...userData.submittedCodes, submittedCode];
-  userData.codeSubmissionsToday = data.owner_submissions || userData.codeSubmissionsToday;
-  userData.totalCodeSubmissions = data.total_code_submissions || userData.totalCodeSubmissions;
-  userData.totalCodesSubmitted = data.total_codes_submitted || userData.totalCodesSubmitted;
-                    
-                    saveMiningState();
-                    updateUI();
-                    alert(data.message || 'Code submitted successfully!');
-                    codeInput.value = '';
-                } else {
-                    alert(data.message || 'Code submission failed');
-                }
-            } catch (err) {
-                console.error('Code submission failed:', err);
-                alert(err.message || 'Failed to submit code.');
-            }
-        });
+    function tgAlert(message) {
+    if (window.Telegram?.WebApp) {
+        showToast(message);
+    } else {
+        alert(message);
     }
+}
+
+    if (submitBtn) {
+    submitBtn.addEventListener('click', async () => {
+        const submittedCode = codeInput.value.trim();
+        if (!submittedCode) return tgAlert('Please enter a code to submit');
+
+        try {
+            const payload = {
+                ...initializeUser(),
+                action: 'submit_code',
+                code: submittedCode
+            };
+
+            const execution = await functions.createExecution(FUNCTION_ID, JSON.stringify(payload));
+            const data = JSON.parse(execution.responseBody || '{}');
+
+            if (data.success) {
+                userData.balance = data.balance;
+                userData.submittedCodes = [...userData.submittedCodes, submittedCode];
+                userData.codeSubmissionsToday = data.owner_submissions || userData.codeSubmissionsToday;
+                userData.totalCodeSubmissions = data.total_code_submissions || userData.totalCodeSubmissions;
+                userData.totalCodesSubmitted = data.total_codes_submitted || userData.totalCodesSubmitted;
+
+                saveMiningState();
+                updateUI();
+                showToast(data.message || 'Code submitted successfully!');
+                codeInput.value = '';
+            } else {
+                showToast(data.message || 'Code submission failed');
+            }
+        } catch (err) {
+            console.error('Code submission failed:', err);
+            tgtgAlert(err.message || 'Failed to submit code.');
+        }
+    });
+}
 
     if (sendBtn) {
         sendBtn.addEventListener('click', async () => {
@@ -526,24 +567,20 @@ if (data.success) {
         });
     }
 
-    if (copyReferralBtn) {
-        copyReferralBtn.addEventListener('click', async () => {
-            try {
-                const code = userData.ownReferralCode;
-                const link = `https://t.me/blacktestvbot?startapp=${code}`;
-                await navigator.clipboard.writeText(link);
-                
-                if (window.Telegram?.WebApp) {
-                    window.Telegram.WebApp.showAlert('Referral link copied!');
-                } else {
-                    alert('Link copied to clipboard!');
-                }
-            } catch (error) {
-                console.error('Copy failed:', error);
-                prompt('Please copy this link manually:', link);
-            }
-        });
-    }
+if (copyReferralBtn) {
+    copyReferralBtn.addEventListener('click', async () => {
+        try {
+            const code = userData.ownReferralCode;
+            const link = `https://t.me/blacktestvbot?startapp=${code}`;
+            await navigator.clipboard.writeText(link);
+            copyReferralBtn.textContent = 'Copied';
+            setTimeout(() => copyReferralBtn.textContent = 'Copy', 2000);
+        } catch (error) {
+            console.error('Copy failed:', error);
+        }
+    });
+}
+
 
     if (inviteBtn) {
         inviteBtn.addEventListener('click', async () => {
