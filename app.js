@@ -519,7 +519,7 @@ function setupEventListeners() {
     }
 }
 
-    if (submitBtn) {
+if (submitBtn) {
     submitBtn.addEventListener('click', async () => {
         const submittedCode = codeInput.value.trim();
         if (!submittedCode) return tgAlert('Please enter a code to submit');
@@ -550,7 +550,15 @@ function setupEventListeners() {
             }
         } catch (err) {
             console.error('Code submission failed:', err);
-            tgtgAlert(err.message || 'Failed to submit code.');
+            tgAlert(err.message || 'Failed to submit code.');
+        }
+    });
+
+    // Enter key support for code input
+    codeInput.addEventListener('keypress', async (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            submitBtn.click();
         }
     });
 }

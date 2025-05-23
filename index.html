@@ -14,7 +14,7 @@
 </head>
 
 <body>
-  
+
 <!-- Toast container -->
 <div id="toast-container" aria-live="polite" aria-atomic="true"></div>
 
@@ -143,8 +143,16 @@
 <button class="button" id="sendButton">Send</button>
 </div>
 <div class="stats-row">
-<input type="text" id="codeInput" placeholder="enter code . . ." class="input"/>
-</div>
+<input
+  type="text"
+  id="codeInput"
+  placeholder="enter code . . ."
+  class="input"
+  enterkeyhint="done"
+  autocomplete="off"
+  autocorrect="off"
+  autocapitalize="none"
+/></div>
 <div class="stats-row">
 <button class="button" id="submitButton">Submit</button>
 </div>
