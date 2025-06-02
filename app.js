@@ -1,20 +1,11 @@
 import { Client, Functions } from "https://esm.sh/appwrite@13.0.0";
 
-// these come from your .env at build time
-const ENDPOINT    = import.meta.env.VITE_APPWRITE_ENDPOINT;
-const PROJECT_ID  = import.meta.env.VITE_APPWRITE_PROJECT;
-const FUNCTION_ID = import.meta.env.VITE_APPWRITE_FUNCTION_ID;
+const client = new Client()
+  .setEndpoint("https://fra.cloud.appwrite.io/v1")
+  .setProject("6800cf6c0038c2026f07");
 
-if (!ENDPOINT || !PROJECT_ID || !FUNCTION_ID) {
-  console.warn("⚠️  Missing one of VITE_APPWRITE_* in your env");
-}
-
-export const client = new Client()
-  .setEndpoint(ENDPOINT)
-  .setProject(PROJECT_ID);
-
-export const functions = new Functions(client);
-export { FUNCTION_ID };
+const functions = new Functions(client);
+const FUNCTION_ID = "6800d0a4001cb28a32f5";
 
 // DOM Elements
 const [
