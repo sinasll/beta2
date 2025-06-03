@@ -1,7 +1,7 @@
 import { Client, Functions } from "https://esm.sh/appwrite@13.0.0";
 
-const PROJECT_ID   = "6800cf6c0038c2026f07";
-const FUNCTION_ID  = "680442d4002cb52d1977"; 
+const PROJECT_ID   = "68334c60000199e18987";
+const FUNCTION_ID  = "68338b45002de0231c48"; 
 
 const client    = new Client()
   .setEndpoint("https://fra.cloud.appwrite.io/v1")
@@ -47,10 +47,12 @@ function renderLeaderboard(leaderboard) {
   }
 
   function formatNumber(num) {
-    return Number(num).toLocaleString('en-US', {
-      minimumFractionDigits: 3,
-      maximumFractionDigits: 3
-    });
+    if (isNaN(num)) return '0.00';
+    const parts = Number(num).toFixed(2).split('.');
+    const wholePart = parts[0];
+    const decimalPart = parts[1];
+    const formattedWhole = wholePart.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    return formattedWhole + '.' + decimalPart;
   }
   
   leaderboard.forEach(miner => {
