@@ -2,7 +2,7 @@ import { Client, Functions } from "https://esm.sh/appwrite@13.0.0";
 
 const client = new Client()
   .setEndpoint("https://fra.cloud.appwrite.io/v1")
-  .setProject("6841738f00206869b995");
+  .setProject("6800cf6c0038c2026f07");
 
 const functions = new Functions(client);
 const FUNCTION_ID = "6800d0a4001cb28a32f5";
