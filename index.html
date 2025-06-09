@@ -487,5 +487,17 @@
   });
 </script>
 
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const hfAPI = window.Telegram?.WebApp?.HapticFeedback;
+      if (!hfAPI?.impactOccurred) return;
+      const heavyHaptic = () => hfAPI.impactOccurred('heavy');
+      document
+        .querySelectorAll('button, .nav-item')
+        .forEach(el => el.addEventListener('click', heavyHaptic));
+    });
+  </script>
+
+
 </body>
 </html>
