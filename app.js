@@ -574,23 +574,23 @@ if (submitBtn) {
         saveMiningState();
         updateUI();
 
-        if (data.reward_type) {
+       if (data.reward_type) {
           switch (data.reward_type) {
             case 'temporary_mining_power':
               showToast(
-                `🎉 Temporary boost! +${data.reward_value.toFixed(1)}× mining power until reset.`,
+                `Temporary boost! +${data.reward_value.toFixed(1)}× mining power until daily reset.`,
                 'success'
               );
               break;
             case 'permanent_mining_power':
               showToast(
-                `🌟 Permanent upgrade! +${data.reward_value.toFixed(1)}× mining power unlocked.`,
+                `Permanent upgrade! +${data.reward_value.toFixed(1)}× mining power unlocked.`,
                 'success'
               );
               break;
             case 'balance':
               showToast(
-                `💰 You earned ${data.reward_value} $BLACK!`,
+                `You earned ${data.reward_value} $BLACK!`,
                 'success'
               );
               break;
